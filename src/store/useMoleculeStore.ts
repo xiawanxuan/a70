@@ -8,7 +8,9 @@ import type {
   ExportConfig,
   ParsedGaussianData,
   GridResolution,
+  VectorAnnotationConfig,
 } from '../types';
+import { DEFAULT_VECTOR_CONFIG } from '../types';
 import { eventBus } from '../core/events/EventBus';
 
 interface MoleculeState {
@@ -33,6 +35,7 @@ interface MoleculeActions {
   setProductMolecule: (molecule: Molecule | null) => void;
   setDensityGrid: (grid: DensityGrid | null) => void;
   updateRenderConfig: (config: Partial<RenderConfig>) => void;
+  updateVectorConfig: (config: Partial<VectorAnnotationConfig>) => void;
   updateViewConfig: (config: Partial<ViewConfig>) => void;
   updateHighlightConfig: (config: Partial<HighlightConfig>) => void;
   setFragmentVisibility: (fragmentId: string, visible: boolean) => void;
@@ -60,6 +63,7 @@ const defaultRenderConfig: RenderConfig = {
   atomStyle: 'ballstick',
   atomScale: 1.0,
   bondRadius: 0.15,
+  vectorConfig: { ...DEFAULT_VECTOR_CONFIG },
 };
 
 const defaultViewConfig: ViewConfig = {
@@ -127,6 +131,14 @@ export const useMoleculeStore = create<MoleculeState & MoleculeActions>((set, ge
     const newConfig = { ...get().renderConfig, ...config };
     set({ renderConfig: newConfig });
     eventBus.emit('RENDER_CONFIG_CHANGED', { config });
+  },
+
+  updateVectorConfig: (config: Partial<VectorAnnotationConfig>) => {
+    const state = get();
+    const newVectorConfig = { ...state.renderConfig.vectorConfig, ...config };
+    const newRenderConfig = { ...state.renderConfig, vectorConfig: newVectorConfig };
+    set({ renderConfig: newRenderConfig });
+    eventBus.emit('RENDER_CONFIG_CHANGED', { config: { vectorConfig: newVectorConfig } });
   },
 
   updateViewConfig: (config: Partial<ViewConfig>) => {

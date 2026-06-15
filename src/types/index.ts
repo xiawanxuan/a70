@@ -32,6 +32,44 @@ export interface Bond {
   length: number;
 }
 
+export interface DipoleMoment {
+  vector: Vector3;
+  magnitude: number;
+  origin: Vector3;
+  components: { x: number; y: number; z: number };
+  unit: string;
+}
+
+export type ForceType = 'electrostatic' | 'vdw' | 'hydrogen_bond' | 'dipole_dipole';
+
+export interface IntermolecularForce {
+  id: string;
+  type: ForceType;
+  vector: Vector3;
+  magnitude: number;
+  origin: Vector3;
+  target: Vector3;
+  sourceMoleculeId: string;
+  targetMoleculeId: string;
+  sourceAtomId?: number;
+  targetAtomId?: number;
+  energy: number;
+  distance: number;
+}
+
+export interface VectorAnnotationConfig {
+  showDipoleMoment: boolean;
+  showIntermolecularForces: boolean;
+  showForceLabels: boolean;
+  arrowScale: number;
+  dipoleColor: string;
+  forceColors: Record<ForceType, string>;
+  minForceMagnitude: number;
+  maxForceDisplay: number;
+  arrowHeadLength: number;
+  arrowRadius: number;
+}
+
 export interface Molecule {
   id: string;
   name: string;
@@ -43,6 +81,7 @@ export interface Molecule {
   multiplicity: number;
   fragments: MoleculeFragment[];
   energy?: number;
+  dipoleMoment?: DipoleMoment;
 }
 
 export interface MoleculeFragment {
@@ -73,6 +112,7 @@ export interface RenderConfig {
   atomStyle: AtomStyle;
   atomScale: number;
   bondRadius: number;
+  vectorConfig: VectorAnnotationConfig;
 }
 
 export interface ViewConfig {
@@ -162,6 +202,31 @@ export const GRID_RESOLUTION_CONFIG: Record<GridResolution, { steps: number; spa
   coarse: { steps: 40, spacing: 0.5 },
   medium: { steps: 60, spacing: 0.35 },
   fine: { steps: 80, spacing: 0.25 },
+};
+
+export const DEFAULT_VECTOR_CONFIG: VectorAnnotationConfig = {
+  showDipoleMoment: true,
+  showIntermolecularForces: true,
+  showForceLabels: true,
+  arrowScale: 1.0,
+  dipoleColor: '#FF6B35',
+  forceColors: {
+    electrostatic: '#9C27B0',
+    vdw: '#2E7D32',
+    hydrogen_bond: '#00ACC1',
+    dipole_dipole: '#F57C00',
+  },
+  minForceMagnitude: 0.01,
+  maxForceDisplay: 20,
+  arrowHeadLength: 0.3,
+  arrowRadius: 0.08,
+};
+
+export const FORCE_TYPE_NAMES: Record<ForceType, string> = {
+  electrostatic: '静电作用',
+  vdw: '范德华力',
+  hydrogen_bond: '氢键',
+  dipole_dipole: '偶极-偶极',
 };
 
 export const ELEMENT_LIST = [

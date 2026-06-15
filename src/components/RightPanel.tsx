@@ -1,16 +1,20 @@
 import { useMoleculeStore } from '../store/useMoleculeStore';
 import { AtomSelector } from '../core/filter/AtomSelector';
-import { FUNCTIONAL_GROUPS, ELEMENT_LIST } from '../types';
-import type { Molecule } from '../types';
+import { FUNCTIONAL_GROUPS, ELEMENT_LIST, FORCE_TYPE_NAMES } from '../types';
+import type { Molecule, ForceType } from '../types';
 
 export default function RightPanel() {
   const {
     molecules,
     activeMoleculeId,
+    renderConfig,
     highlightConfig,
     updateHighlightConfig,
+    updateVectorConfig,
     selectAtom,
   } = useMoleculeStore();
+
+  const { vectorConfig } = renderConfig;
 
   const activeMolecule = molecules.find((m) => m.id === activeMoleculeId) as Molecule | undefined;
 
@@ -51,6 +55,131 @@ export default function RightPanel() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
+        <div className="p-4 border-b border-gray-200 bg-white">
+          <h3 className="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+            分子矢量标注
+          </h3>
+
+          <div className="space-y-2.5">
+            <label className="flex items-center justify-between text-xs text-gray-600 cursor-pointer">
+              <span>显示偶极矩</span>
+              <input
+                type="checkbox"
+                checked={vectorConfig.showDipoleMoment}
+                onChange={(e) => updateVectorConfig({ showDipoleMoment: e.target.checked })}
+                className="w-3.5 h-3.5 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+              />
+            </label>
+
+            <label className="flex items-center justify-between text-xs text-gray-600 cursor-pointer">
+              <span>显示分子间作用力</span>
+              <input
+                type="checkbox"
+                checked={vectorConfig.showIntermolecularForces}
+                onChange={(e) => updateVectorConfig({ showIntermolecularForces: e.target.checked })}
+                className="w-3.5 h-3.5 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+              />
+            </label>
+
+            <div className="pt-1 border-t border-gray-100">
+              <label className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+                <span>箭头缩放</span>
+                <span className="font-mono text-gray-500">{vectorConfig.arrowScale.toFixed(1)}x</span>
+              </label>
+              <input
+                type="range"
+                min="0.2"
+                max="3"
+                step="0.1"
+                value={vectorConfig.arrowScale}
+                onChange={(e) => updateVectorConfig({ arrowScale: parseFloat(e.target.value) })}
+                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              />
+            </div>
+
+            <div className="pt-1 border-t border-gray-100">
+              <label className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+                <span>最大作用力显示</span>
+                <span className="font-mono text-gray-500">{vectorConfig.maxForceDisplay}</span>
+              </label>
+              <input
+                type="range"
+                min="5"
+                max="50"
+                step="1"
+                value={vectorConfig.maxForceDisplay}
+                onChange={(e) => updateVectorConfig({ maxForceDisplay: parseInt(e.target.value) })}
+                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              />
+            </div>
+
+            <div className="pt-1 border-t border-gray-100">
+              <label className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+                <span>最小力阈值</span>
+                <span className="font-mono text-gray-500">{vectorConfig.minForceMagnitude.toFixed(3)}</span>
+              </label>
+              <input
+                type="range"
+                min="0.001"
+                max="0.5"
+                step="0.005"
+                value={vectorConfig.minForceMagnitude}
+                onChange={(e) => updateVectorConfig({ minForceMagnitude: parseFloat(e.target.value) })}
+                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              />
+            </div>
+
+            <div className="pt-2 border-t border-gray-100">
+              <p className="text-xs font-medium text-gray-600 mb-2">作用力类型颜色</p>
+              <div className="space-y-1.5">
+                {(Object.keys(FORCE_TYPE_NAMES) as ForceType[]).map((type) => (
+                  <label key={type} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">{FORCE_TYPE_NAMES[type]}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="w-3.5 h-3.5 rounded-full border border-gray-300"
+                        style={{ backgroundColor: vectorConfig.forceColors[type] }}
+                      />
+                      <input
+                        type="color"
+                        value={vectorConfig.forceColors[type]}
+                        onChange={(e) =>
+                          updateVectorConfig({
+                            forceColors: {
+                              ...vectorConfig.forceColors,
+                              [type]: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-5 h-5 rounded border-none cursor-pointer p-0 bg-transparent"
+                      />
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-1 border-t border-gray-100">
+              <label className="flex items-center justify-between text-xs">
+                <span className="text-gray-600">偶极矩颜色</span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-gray-300"
+                    style={{ backgroundColor: vectorConfig.dipoleColor }}
+                  />
+                  <input
+                    type="color"
+                    value={vectorConfig.dipoleColor}
+                    onChange={(e) => updateVectorConfig({ dipoleColor: e.target.value })}
+                    className="w-5 h-5 rounded border-none cursor-pointer p-0 bg-transparent"
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div className="p-4 border-b border-gray-200">
           <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer mb-3">
             <input

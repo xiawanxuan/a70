@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { useMoleculeStore } from '../store/useMoleculeStore';
 import MoleculeRenderer from './MoleculeRenderer';
 import IsosurfaceRenderer from './IsosurfaceRenderer';
+import VectorRenderer from './VectorRenderer';
 
 function CameraController() {
   const { camera } = useThree();
@@ -121,6 +122,13 @@ function SceneContent() {
 
       <IsosurfaceRenderer densityGrid={densityGrid} renderConfig={renderConfig} />
 
+      <VectorRenderer
+        reactantMolecule={reactantMolecule}
+        productMolecule={productMolecule}
+        activeMolecule={activeMolecule || null}
+        vectorConfig={renderConfig.vectorConfig}
+      />
+
       <gridHelper args={[20, 20, '#666666', '#444444']} position={[0, -4, 0]} />
     </>
   );
@@ -184,7 +192,7 @@ export default function CenterCanvas() {
         </div>
       )}
 
-      <div className="absolute bottom-4 left-4 z-10 bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow">
+      <div className="absolute bottom-4 left-4 z-10 bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow space-y-2">
         <div className="text-xs text-gray-600 space-y-0.5">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1565C0' }} />
@@ -195,6 +203,58 @@ export default function CenterCanvas() {
             <span>电子缺失区 (Δρ &lt; 0)</span>
           </div>
         </div>
+
+        {renderConfig.vectorConfig.showDipoleMoment && (
+          <div className="pt-1 border-t border-gray-200">
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <div className="w-4 h-3 relative flex items-center">
+                <div
+                  className="w-3 h-1 rounded-full"
+                  style={{ backgroundColor: renderConfig.vectorConfig.dipoleColor }}
+                />
+                <div
+                  className="absolute right-0 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent"
+                  style={{ borderLeftColor: renderConfig.vectorConfig.dipoleColor }}
+                />
+              </div>
+              <span>偶极矩 (μ)</span>
+            </div>
+          </div>
+        )}
+
+        {renderConfig.vectorConfig.showIntermolecularForces && (
+          <div className="pt-1 border-t border-gray-200 space-y-0.5 text-xs">
+            <p className="text-gray-500 font-medium mb-0.5">分子间作用力:</p>
+            <div className="flex items-center gap-2 text-gray-600">
+              <div
+                className="w-3 h-1 rounded-full"
+                style={{ backgroundColor: renderConfig.vectorConfig.forceColors.electrostatic }}
+              />
+              <span>静电</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <div
+                className="w-3 h-1 rounded-full"
+                style={{ backgroundColor: renderConfig.vectorConfig.forceColors.vdw }}
+              />
+              <span>范德华</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <div
+                className="w-3 h-1 rounded-full"
+                style={{ backgroundColor: renderConfig.vectorConfig.forceColors.hydrogen_bond }}
+              />
+              <span>氢键</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <div
+                className="w-3 h-1 rounded-full"
+                style={{ backgroundColor: renderConfig.vectorConfig.forceColors.dipole_dipole }}
+              />
+              <span>偶极-偶极</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="absolute bottom-4 right-4 z-10 bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow">

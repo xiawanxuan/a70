@@ -205,3 +205,26 @@ export const createDensityMaterial = (isPositive: boolean): THREE.MeshPhongMater
   const config = isPositive ? DENSITY_MATERIALS.positive : DENSITY_MATERIALS.negative;
   return new THREE.MeshPhongMaterial(config);
 };
+
+export const VECTOR_MATERIAL_CONFIG: MeshPhongMaterialParameters = {
+  shininess: 100,
+  specular: new THREE.Color('#444444'),
+  transparent: true,
+  opacity: 0.92,
+  depthWrite: false,
+};
+
+export const createVectorMaterial = (color: string): THREE.MeshPhongMaterial => {
+  return new THREE.MeshPhongMaterial({
+    ...VECTOR_MATERIAL_CONFIG,
+    color: new THREE.Color(color),
+  });
+};
+
+export const DEFAULT_DIPOLE_COLOR = '#FF6B35';
+export const DEFAULT_FORCE_COLORS: Record<string, string> = {
+  electrostatic: '#9C27B0',
+  vdw: '#2E7D32',
+  hydrogen_bond: '#00ACC1',
+  dipole_dipole: '#F57C00',
+};
