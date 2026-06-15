@@ -12,6 +12,12 @@ export class MoleculeSwitcher {
   private static readonly DEBOUNCE_MS = 300;
 
   public static setDisplayMode(mode: DisplayMode): void {
+    const { setDensityGrid } = useMoleculeStore.getState();
+    
+    DensityWorkerManager.cancelAll();
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
+    
     MoleculeSwitcher.displayMode = mode;
     MoleculeSwitcher.updateRendering();
   }
@@ -21,21 +27,36 @@ export class MoleculeSwitcher {
   }
 
   public static setReactant(moleculeId: string): void {
-    const { molecules, setReactantMolecule } = useMoleculeStore.getState();
+    const { molecules, setReactantMolecule, setDensityGrid } = useMoleculeStore.getState();
     const molecule = molecules.find((m) => m.id === moleculeId);
+    
+    DensityWorkerManager.cancelAll();
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
+    
     setReactantMolecule(molecule || null);
     MoleculeSwitcher.updateRendering();
   }
 
   public static setProduct(moleculeId: string): void {
-    const { molecules, setProductMolecule } = useMoleculeStore.getState();
+    const { molecules, setProductMolecule, setDensityGrid } = useMoleculeStore.getState();
     const molecule = molecules.find((m) => m.id === moleculeId);
+    
+    DensityWorkerManager.cancelAll();
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
+    
     setProductMolecule(molecule || null);
     MoleculeSwitcher.updateRendering();
   }
 
   public static switchMolecule(moleculeId: string): void {
-    const { setActiveMolecule } = useMoleculeStore.getState();
+    const { setActiveMolecule, setDensityGrid } = useMoleculeStore.getState();
+    
+    DensityWorkerManager.cancelAll();
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
+    
     setActiveMolecule(moleculeId);
     MoleculeSwitcher.updateRendering();
   }
@@ -69,6 +90,8 @@ export class MoleculeSwitcher {
       return null;
     }
 
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
     setLoading(true);
     setError(null);
     setProgress?.(0);
@@ -101,6 +124,8 @@ export class MoleculeSwitcher {
   ): Promise<DensityGrid | null> {
     const { setDensityGrid, setLoading, setError, setProgress } = useMoleculeStore.getState();
 
+    IsosurfaceGenerator.clearCache();
+    setDensityGrid(null);
     setLoading(true);
     setError(null);
     setProgress?.(0);
